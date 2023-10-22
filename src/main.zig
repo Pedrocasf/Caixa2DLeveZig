@@ -1,4 +1,5 @@
 const std = @import("std");
+const MathUtils = @import("MathUtils.zig");
 const testing = std.testing;
 
 export fn add(a: i32, b: i32) i32 {
