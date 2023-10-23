@@ -72,7 +72,7 @@ pub fn CrossV(comptime T: type, a: Vec2(T), b: Vec2(T)) T {
 pub fn CrossVS(comptime T: type, a: Vec2(T), s: T) Vec2(T) {
     return Vec2(T).init(s * a.y, -s * a.x);
 }
-pub fn CrossSV(comptime T: type, a: Vec2(T), s: T) Vec2(T) {
+pub fn CrossSV(comptime T: type, s: T, a: Vec2(T)) Vec2(T) {
     return Vec2(T).init(-s * a.y, s * a.x);
 }
 pub fn MultMV(comptime T: type, A: Mat22(T), v: Vec2(T)) Vec2(T) {
