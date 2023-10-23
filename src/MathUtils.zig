@@ -87,6 +87,9 @@ pub fn SubV(comptime T: type, a: Vec2(T), b: Vec2(T)) Vec2(T) {
 pub fn MultSV(comptime T: type, s: T, v: Vec2(T)) Vec2(T) {
     return Vec2(T).init(s * v.x, s * v.y);
 }
+pub fn DivSV(comptime T: type, s: T, v: Vec2(T)) Vec2(T) {
+    return Vec2(T).init(v.x / s, v.y / s);
+}
 pub fn AddMM(comptime T: type, A: Mat22(T), B: Mat22(T)) Mat22(T) {
     return Mat22(T).initV(AddV(T, A.col1, B.col1), AddV(T, A.col2, B.col2));
 }
@@ -101,4 +104,16 @@ pub fn AbsM(comptime T: type, a: Mat22(T)) Mat22(T) {
 }
 pub fn Clamp(comptime T: type, a: T, low: T, high: T) T {
     return @max(low, @min(a, high));
+}
+pub fn Sign(comptime T: type, x: T) T {
+    if (x < 0) {
+        return -1;
+    } else {
+        return 1;
+    }
+}
+pub fn Swap(comptime T: type, a: *T, b: *T) void {
+    const tmp: T = a;
+    a = b;
+    b = tmp;
 }
