@@ -1,4 +1,5 @@
 const std = @import("std");
+const Body = @import("Body.zig");
 const MathUtils = @import("MathUtils.zig");
 const testing = std.testing;
 
