@@ -9,20 +9,20 @@ const Mat22 = Math.Mat22;
 const FixedBufferAllocator = std.heap.FixedBufferAllocator;
 pub fn World(comptime T: type) type {
     return struct {
-        var buffer: [32 * 1024]u8 = undefined;
-        var fba = FixedBufferAllocator.init(&buffer);
-        const allocator = fba.allocator();
         const Self = @This();
-        var bodies = std.ArrayList(*Body(T)).init(allocator);
-        var joints = std.ArrayList(*Joint(T)).init(allocator);
-        var arbiters = std.AutoArrayHashMap(ArbiterKey(T), Arbiter(T)).init(allocator);
-        var gravity: Vec2(T) = undefined;
-        var iterations: isize = 0;
+        bodies: std.ArrayList(*Body(T)),
+        joints: std.ArrayList(*Joint(T)),
+        arbiters: std.AutoArrayHashMap(ArbiterKey(T), Arbiter(T)),
+        gravity: Vec2(T),
+        iterations: usize,
         pub var static = struct {
             pub var accumulateImpulses = false;
             pub var warmStarting = false;
             pub var positionCorrection = false;
         };
+        pub fn init(a: std.heap.Allocator, gravityVec: Vec2(T), iter: usize) Self {
+            return Self{ .bodies = std.ArrayList(*Body(T)).init(a), .joints = std.ArrayList(*Joint(T)).init(a), .arbiters = std.AutoArrayHashMap(ArbiterKey(T), Arbiter(T)).init(a), .gravity = gravityVec, .iterations = iter };
+        }
         pub fn AddBody(self: Self, body: *Body(T)) void {
             self.bodies.append(body);
         }
