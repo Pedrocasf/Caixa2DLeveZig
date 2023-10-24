@@ -7,7 +7,7 @@ const Math = @import("MathUtils.zig");
 const Vec2 = Math.Vec2;
 const Mat22 = Math.Mat22;
 const FixedBufferAllocator = std.heap.FixedBufferAllocator;
-pub export fn World(comptime T: type) type {
+pub fn World(comptime T: type) type {
     return struct {
         var buffer: [32 * 1024]u8 = undefined;
         var fba = FixedBufferAllocator.init(&buffer);

@@ -1,4 +1,4 @@
-pub export fn Vec2(comptime T: type) type {
+pub fn Vec2(comptime T: type) type {
     return struct {
         const Self = @This();
         x: T,
@@ -34,7 +34,7 @@ pub export fn Vec2(comptime T: type) type {
 fn assert(ok: bool) void {
     if (!ok) unreachable; // assertion failure
 }
-pub export fn Mat22(comptime T: type) type {
+pub fn Mat22(comptime T: type) type {
     return struct {
         const Self = @This();
         col1: Vec2(T),

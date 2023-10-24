@@ -2,7 +2,7 @@ const std = @import("std");
 const maxInt = std.math.maxInt;
 const Math = @import("MathUtils.zig");
 const Vec2 = Math.Vec2;
-pub export fn Body(comptime T: type) type {
+pub fn Body(comptime T: type) type {
     return struct {
         const Self = @This();
         position: Vec2(T),

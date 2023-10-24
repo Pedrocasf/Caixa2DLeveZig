@@ -3,7 +3,7 @@ const Vec2 = Math.Vec2;
 const Mat22 = Math.Mat22;
 const Body = @import("Body.zig").Body;
 const World = @import("World.zig").World;
-pub export fn Joint(comptime T: type) type {
+pub fn Joint(comptime T: type) type {
     return struct {
         const Self = @This();
         M: Mat22(T),
