@@ -138,5 +138,47 @@ pub export fn Arbiter(comptime T: type) type {
                 }
             }
         }
+        pub fn ApplyImpulse(self: Self) void {
+            const b1: *Body(T) = self.body1;
+            const b2: *Body(T) = self.body2;
+            for (0..self.numContacts) |i| {
+                const c: *Contact(T) = self.contacts + i;
+                c.r1 = Math.SubV(T, c.position, b1.position);
+                c.r2 = Math.SubV(T, c.position, b2.position);
+                var dv: Vec2(T) = Math.AddV(T, b2.velocity, Math.SubV(T, Math.CrossSV(T, b2.angularVelocity, c.r2), Math.SubV(T, b1.velocity, Math.CrossSV(T, b1.angularVelocity, c.r1))));
+                const vn: T = Math.DotV(T, dv, c.normal);
+                var dPn: T = c.massNormal * (-vn + c.bias);
+                if (World(T).static.accumulateImpulses) {
+                    const Pn0: T = c.Pn;
+                    c.Pn = @max(Pn0 + dPn, 0);
+                    dPn = c.Pn - Pn0;
+                } else {
+                    dPn = @max(dPn, 0);
+                }
+                const Pn: Vec2(T) = Math.MultSV(T, dPn, c.normal);
+                b1.velocity.dec(Math.MultSV(T, b1.invMass, Pn));
+                b1.angularVelocity -= b1.invI * Math.CrossV(T, c.r1, Pn);
+                b2.velocity.acc(Math.MultSV(T, b2.invMass, Pn));
+                b2.angularVelocity += b2.invI * Math.CrossV(T, c.r2, Pn);
+                dv = Math.AddV(T, b2.velocity, Math.SubV(T, Math.CrossSV(T, b2.angularVelocity, c.r2), Math.SubV(T, b1.velocity, Math.CrossSV(T, b1.angularVelocity, c.r1))));
+                const tangent: Vec2(T) = Math.CrossVS(T, c.normal, 1);
+                const vt = Math.DotV(T, dv, tangent);
+                var dPt: T = c.massTangent * (-vt);
+                if (World(T).static.accumulateImpulses) {
+                    const maxPt: T = self.friction * c.Pn;
+                    const oldTangentImpulse: T = c.Pt;
+                    c.Pt = Math.Clamp(T, oldTangentImpulse + dPt, -maxPt, maxPt);
+                    dPt = c.Pt - oldTangentImpulse;
+                } else {
+                    const maxPt: T = self.friction * dPn;
+                    dPt = Math.Clamp(T, dPt, -maxPt, maxPt);
+                }
+                const Pt: Vec2(T) = Math.MultSV(T, dPt, tangent);
+                b1.velocity.dec(Math.MultSV(T, b1.invMass, Pt));
+                b1.angularVelocity -= b1.invI * Math.CrossV(T, c.r1, Pt);
+                b2.velocity.acc(Math.MultSV(T, b2.invMass, Pt));
+                b2.angularVelocity += b2.invI * Math.CrossV(T, c.r2, Pt);
+            }
+        }
     };
 }
