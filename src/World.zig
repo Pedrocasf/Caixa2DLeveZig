@@ -3,15 +3,87 @@ const Body = @import("Body.zig").Body;
 const Joint = @import("Joint.zig").Joint;
 const Arbiter = @import("Arbiter.zig").Arbiter;
 const ArbiterKey = @import("Arbiter.zig").ArbiterKey;
+const Math = @import("MathUtils.zig");
+const Vec2 = Math.Vec2;
+const Mat22 = Math.Mat22;
+const FixedBufferAllocator = std.heap.FixedBufferAllocator;
 pub export fn World(comptime T: type) type {
     return struct {
+        var buffer: [32 * 1024]u8 = undefined;
+        var fba = FixedBufferAllocator.init(&buffer);
+        const allocator = fba.allocator();
         const Self = @This();
-        const bodies = std.ArrayList(*Body(T));
-        const joints = std.ArrayHashMap(ArbiterKey(T), Arbiter(T), comptime Context: type, comptime max_load_percentage: u64)
-        pub const static = struct {
-            var accumulateImpulses = false;
-            var warmStarting = false;
-            var positionCorrection = false;
+        var bodies = std.ArrayList(*Body(T)).init(allocator);
+        var joints = std.ArrayList(*Joint(T)).init(allocator);
+        var arbiters = std.AutoArrayHashMap(ArbiterKey(T), Arbiter(T)).init(allocator);
+        var gravity: Vec2(T) = undefined;
+        var iterations: isize = 0;
+        pub var static = struct {
+            pub var accumulateImpulses = false;
+            pub var warmStarting = false;
+            pub var positionCorrection = false;
         };
+        pub fn AddBody(self: Self, body: *Body(T)) void {
+            self.bodies.append(body);
+        }
+        pub fn AddJoint(self: Self, joint: *Joint(T)) void {
+            self.joints.append(joint);
+        }
+        pub fn clear(self: Self) void {
+            self.bodies.clearAndFree();
+            self.joints.clearAndFree();
+            self.arbiters.clearAndFree();
+        }
+        pub fn BoardPhase(self: Self) void {
+            for (self.bodies) |bi| {
+                for (self.bodies) |bj| {
+                    if (bi.invMass == 0 & (bj.invMass == 0)) {
+                        continue;
+                    }
+                    const newArb = Arbiter(T).init(bi, bj);
+                    const key = ArbiterKey(T).init(bi, bj);
+                    if (newArb.numContacts > 0) {
+                        self.arbiters.put(key, newArb);
+                    } else {
+                        self.arbiters.remove(key);
+                    }
+                }
+            }
+        }
+        pub fn Step(self: Self, dt: T) void {
+            const inv_dt: T = if (dt > 0) {
+                1 / dt;
+            } else {
+                0;
+            };
+            self.BoardPhase();
+            for (self.bodies) |b| {
+                if (b.invMass == 0) {
+                    continue;
+                }
+                b.velocity.acc(Math.MultSV(T, dt, Math.AddV(T, self.gravity, Math.MultSV(T, b.invMass, b.force))));
+                b.angularVelocity += dt * b.invI * b.torque;
+            }
+            for (self.arbiters.values()) |v| {
+                v.PreStep(inv_dt);
+            }
+            for (self.joints) |j| {
+                j.PreStep(inv_dt);
+            }
+            for (0..self.iterations) |_| {
+                for (self.arbiters.values()) |v| {
+                    v.ApplyImpulse();
+                }
+                for (self.joints) |j| {
+                    j.ApplyImpulse();
+                }
+            }
+            for (self.bodies) |b| {
+                b.position.acc(Math.MultSV(T, dt, b.velocity));
+                b.rotation += dt * b.angularVelocity;
+                b.force.set(0, 0);
+                b.torque = 0;
+            }
+        }
     };
 }
