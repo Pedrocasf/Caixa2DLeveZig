@@ -12,7 +12,7 @@ const FeaturePair = union {
     },
     value: u32,
 };
-pub export fn Contact(comptime T: type) type {
+pub fn Contact(comptime T: type) type {
     return struct {
         const Self = @This();
         position: Vec2(T),
@@ -32,7 +32,7 @@ pub export fn Contact(comptime T: type) type {
         }
     };
 }
-pub export fn ArbiterKey(comptime T: type) type {
+pub fn ArbiterKey(comptime T: type) type {
     return struct {
         const Self = @This();
         body1: Body(T),
@@ -49,7 +49,7 @@ pub export fn ArbiterKey(comptime T: type) type {
 pub fn lessThan(comptime T: type, a1: *ArbiterKey(T), a2: *ArbiterKey(T)) bool {
     return (a1.body1 < a2.body2) || (a1.body1 == a2.body1 & (a1.body2 < a2.body2));
 }
-pub export fn Arbiter(comptime T: type) type {
+pub fn Arbiter(comptime T: type) type {
     return struct {
         const Self = @This();
         const MAX_POINTS = 2;
