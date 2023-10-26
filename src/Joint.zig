@@ -6,26 +6,38 @@ const World = @import("World.zig").World;
 pub fn Joint(comptime T: type) type {
     return struct {
         const Self = @This();
-        M: Mat22(T),
-        localAnchor1: Vec2(T),
-        localAnchor2: Vec2(T),
-        r1: Vec2(T),
-        r2: Vec2(T),
-        bias: Vec2(T),
+        M: Mat22(T) = Mat22(T).initV(Vec2(T).init(1, 0), Vec2(T).init(0, 1)),
+        localAnchor1: Vec2(T) = Vec2(T).init(1, 0),
+        localAnchor2: Vec2(T) = Vec2(T).init(0, 1),
+        r1: Vec2(T) = Vec2(T).init(1, 0),
+        r2: Vec2(T) = Vec2(T).init(0, 1),
+        bias: Vec2(T) = Vec2(T).init(0, 0),
         P: Vec2(T),
         body1: Body(T),
         body2: Body(T),
         biasFactor: T,
         softness: T,
-        pub fn init(b1: Body(T), b2: Body(T), anchor: Vec2(T)) Self {
+        pub fn init() Self {
+            return Self{
+                .body1 = Body(T).init(),
+                .body2 = Body(T).init(),
+                .p = Vec2(T).init(0, 0),
+                .biasFactor = 0.2,
+                .softness = 0,
+            };
+        }
+        pub fn set(self: Self, b1: Body(T), b2: Body(T), anchor: Vec2(T)) void {
+            self.body1 = b1;
+            self.body2 = b2;
             const Rot1 = Mat22(T).initAngle(b1.rotation);
             const Rot2 = Mat22(T).initAngle(b2.rotation);
             const Rot1T = Rot1.transpose();
             const Rot2T = Rot2.transpose();
-            const localAnchor1 = Math.MultMV(T, Rot1T, Math.SubV(T, anchor, b1.position));
-            const localAnchor2 = Math.MultMV(T, Rot2T, Math.SubV(T, anchor, b2.position));
-
-            return Self{ .M = Mat22(T).initV(Vec2(T).init(0, 0), Vec2(T).init(0, 0)), .localAnchor1 = localAnchor1, .localAnchor2 = localAnchor2, .r1 = Vec2(T).init(0, 0), .r2 = Vec2(T).init(0, 0), .bias = Vec2(T).init(0, 0), .P = Vec2(T).init(0, 0), .body1 = b1, .body2 = b2, .biasFactor = 2, .softness = 0 };
+            self.localAnchor1 = Math.MultMV(T, Rot1T, Math.SubV(T, anchor, b1.position));
+            self.localAnchor2 = Math.MultMV(T, Rot2T, Math.SubV(T, anchor, b2.position));
+            self.P = Vec2(T).init(0, 0);
+            self.softness = 0;
+            self.biasFactor = 0.2;
         }
         pub fn preStep(self: Self, inv_dt: T) void {
             const Rot1 = Mat22(T).initAngle(self.body1.rotation);

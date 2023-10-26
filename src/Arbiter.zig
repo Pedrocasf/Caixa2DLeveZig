@@ -59,8 +59,8 @@ pub fn Arbiter(comptime T: type) type {
         body2: Body(T),
         friction: T,
         pub fn init(b1: *Body(T), b2: *Body(T)) Self {
-            const body1: Body(T) = undefined;
-            const body2: Body(T) = undefined;
+            const body1: *Body(T) = undefined;
+            const body2: *Body(T) = undefined;
             if (b1 < b2) {
                 body1 = b1;
                 body2 = b2;
@@ -70,14 +70,13 @@ pub fn Arbiter(comptime T: type) type {
             }
             const self = Self{ .body1 = body1, .body2 = body2, .contacts = [MAX_POINTS]Contact(T){ Contact(T).init(), Contact(T).init() }, .numContacts = 0, .friction = @sqrt(body1.friction * body2.friction) };
             self.numContacts = Collide(T, self.contacts, body1, body2);
+            return self;
         }
-        pub fn update(self: Self, newContacts: *Contact(T), numNewContacts: isize) void {
+        pub fn update(self: Self, newContacts: [*:0]const Contact(T), numNewContacts: isize) void {
             var mergedContacts: [2]Contact(T) = undefined;
-            for (0..numNewContacts) |i| {
-                var cNew: *Contact(T) = newContacts + 1;
+            for (newContacts, mergedContacts) |cNew, merged| {
                 var k: isize = -1;
-                for (0..self.numContacts) |j| {
-                    var cOld: *Contact(T) = self.contacts + 1;
+                for (self.contacts, 0..numNewContacts) |cOld, j| {
                     if (cNew.feature.value == cOld.feature.value) {
                         k = j;
                         break;
@@ -97,11 +96,11 @@ pub fn Arbiter(comptime T: type) type {
                         c.Pnb = 0;
                     }
                 } else {
-                    mergedContacts[i] = newContacts[i];
+                    merged = newContacts;
                 }
             }
-            for (0..numNewContacts) |i| {
-                self.contacts[i] = mergedContacts[i];
+            for (self.contacts, mergedContacts) |sc, mc| {
+                sc = mc;
             }
             self.numContacts = numNewContacts;
         }
@@ -112,8 +111,7 @@ pub fn Arbiter(comptime T: type) type {
             } else {
                 0;
             };
-            for (0..self.numContacts) |i| {
-                const c: *Contact(T) = self.contacts + i;
+            for (self.contacts) |c| {
                 const r1: Vec2(T) = Math.SubV(T, c.position, self.body1.position);
                 const r2: Vec2(T) = Math.SubV(T, c.position, self.body2.position);
                 const rn1: T = Math.DotV(T, r1, c.normal);

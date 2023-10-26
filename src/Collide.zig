@@ -101,7 +101,7 @@ pub fn ComputeIncidentEdge(comptime T: type, c: [2]ClipVertex(T), h: *Vec2(T), p
     c[0].v = Math.AddV(T, pos, Math.MultMV(T, Rot, c[0].v));
     c[1].v = Math.AddV(T, pos, Math.MultMV(T, Rot, c[1].v));
 }
-pub fn Collide(comptime T: type, contacts: *Contact(T), bodyA: *Body(T), bodyB: *Body(T)) isize {
+pub fn Collide(comptime T: type, contacts: [*:0]Contact(T), bodyA: *Body(T), bodyB: *Body(T)) isize {
     const hA = Math.DivSV(T, 2, bodyA.width);
     const hB = Math.DivSV(T, 2, bodyB.width);
     const posA = bodyA.position;
@@ -222,17 +222,15 @@ pub fn Collide(comptime T: type, contacts: *Contact(T), bodyA: *Body(T), bodyB: 
         return 0;
     }
     var numContacts: isize = 0;
-    for (0..2) |i| {
-        const separationInner: T = Math.DotV(T, frontNormal, clipPoints2[i].v) - front;
+    for (clipPoints2, contacts) |clipPoint2, contact| {
+        const separationInner: T = Math.DotV(T, frontNormal, clipPoint2.v) - front;
         if (separation <= 0) {
-            contacts[numContacts].separation = separationInner;
-            contacts[numContacts].normal = normal;
-
-            contacts[numContacts].position = Math.SubV(T, clipPoints2[i].v, Math.MultSV(T, separationInner, frontNormal));
-
-            contacts[numContacts].feature = clipPoints2[i].fp;
+            contact.separation = separationInner;
+            contact.normal = normal;
+            contact.position = Math.SubV(T, clipPoint2.v, Math.MultSV(T, separationInner, frontNormal));
+            contact.feature = clipPoint2.fp;
             if (axis == Axis.FACE_B_X || (axis == Axis.FACE_B_Y)) {
-                Flip(contacts[numContacts].feature);
+                Flip(contact.feature);
             }
             numContacts += 1;
         }
