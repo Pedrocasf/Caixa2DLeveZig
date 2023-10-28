@@ -5,12 +5,12 @@ const Math = @import("MathUtils.zig");
 const Collide = @import("Collide.zig").Collide;
 const FeaturePair = union {
     e: packed struct {
-        inEdge1: u8,
-        outEdge1: u8,
-        inEdge2: u8,
-        outEdge2: u8,
+        inEdge1: u2,
+        outEdge1: u2,
+        inEdge2: u2,
+        outEdge2: u2,
     },
-    value: u32,
+    value: u8,
 };
 pub fn Contact(comptime T: type) type {
     return struct {
