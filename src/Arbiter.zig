@@ -74,9 +74,9 @@ pub fn Arbiter(comptime T: type) type {
         }
         pub fn update(self: Self, newContacts: [*:0]const Contact(T), numNewContacts: isize) void {
             var mergedContacts: [2]Contact(T) = undefined;
-            for (newContacts, mergedContacts) |cNew, merged| {
+            for (newContacts, mergedContacts) |const cNew, merged| {
                 var k: isize = -1;
-                for (self.contacts, 0..numNewContacts) |cOld, j| {
+                for (self.contacts, 0..numNewContacts) |const cOld, j| {
                     if (cNew.feature.value == cOld.feature.value) {
                         k = j;
                         break;
@@ -84,7 +84,7 @@ pub fn Arbiter(comptime T: type) type {
                 }
                 if (k > -1) {
                     var c: *Contact(T) = mergedContacts + 1;
-                    var cOld: *Contact(T) = self.contacts + k;
+                    const cOld: *Contact(T) = self.contacts + k;
                     c.* = cNew.*;
                     if (World(T).static.warmStarting) {
                         c.Pn = cOld.Pn;
@@ -106,7 +106,7 @@ pub fn Arbiter(comptime T: type) type {
         }
         pub fn PreStep(self: Self, inv_dt: T) void {
             const k_allowedPenetration = 0.01;
-            var k_biasFactor = if (World(T).static.positionCorrection) {
+            const k_biasFactor = if (World(T).static.positionCorrection) {
                 0.2;
             } else {
                 0;
