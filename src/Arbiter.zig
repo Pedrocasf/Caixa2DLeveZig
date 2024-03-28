@@ -73,10 +73,10 @@ pub fn Arbiter(comptime T: type) type {
             return self;
         }
         pub fn update(self: Self, newContacts: [*:0]const Contact(T), numNewContacts: isize) void {
-            var mergedContacts: [2]Contact(T) = undefined;
-            for (newContacts, mergedContacts) |const cNew, merged| {
+            const mergedContacts: [2]Contact(T) = undefined;
+            for (newContacts, mergedContacts) |cNew, merged| {
                 var k: isize = -1;
-                for (self.contacts, 0..numNewContacts) |const cOld, j| {
+                for (self.contacts, 0..numNewContacts) |cOld, j| {
                     if (cNew.feature.value == cOld.feature.value) {
                         k = j;
                         break;

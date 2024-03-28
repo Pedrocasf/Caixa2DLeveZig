@@ -30,8 +30,8 @@ pub fn ClipSegmentToLine(
     clipEdge: u8,
 ) isize {
     var numOut: isize = 0;
-    var distance0: T = Math.DotV(T, normal, vIn[0]) - offset;
-    var distance1: T = Math.DotV(T, normal, vIn[1]) - offset;
+    const distance0: T = Math.DotV(T, normal, vIn[0]) - offset;
+    const distance1: T = Math.DotV(T, normal, vIn[1]) - offset;
     if (distance0 <= 0) {
         vOut[numOut] = vIn[0];
         numOut += 1;
@@ -158,7 +158,7 @@ pub fn Collide(comptime T: type, contacts: [*:0]Contact(T), bodyA: *Body(T), bod
     }
     var frontNormal: Vec2(T) = undefined;
     var sideNormal: Vec2(T) = undefined;
-    var incidentEdge: [2]ClipVertex(T) = undefined;
+    const incidentEdge: [2]ClipVertex(T) = undefined;
     var front: T = undefined;
     var negSide: T = undefined;
     var posSide: T = undefined;
@@ -210,8 +210,8 @@ pub fn Collide(comptime T: type, contacts: [*:0]Contact(T), bodyA: *Body(T), bod
             ComputeIncidentEdge(T, incidentEdge, hA, posA, RotA, frontNormal);
         },
     }
-    var clipPoints1: [2]ClipVertex(T) = undefined;
-    var clipPoints2: [2]ClipVertex(T) = undefined;
+    const clipPoints1: [2]ClipVertex(T) = undefined;
+    const clipPoints2: [2]ClipVertex(T) = undefined;
     var np: isize = undefined;
     np = ClipSegmentToLine(T, clipPoints1, incidentEdge, -sideNormal, negSide, negEdge);
     if (np < 2) {
