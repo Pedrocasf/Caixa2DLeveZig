@@ -1,6 +1,9 @@
 const std = @import("std");
 const MathUtils = @import("MathUtils.zig");
-const NumT = f32;
+const FloatDouble = @import("FloatDouble.zig");
+const Float = FloatDouble.Float;
+const Double = FloatDouble.Double;
+const NumT = Float;
 pub const Vec2 = MathUtils.Vec2(NumT);
 pub const Mat22 = MathUtils.Mat22(NumT);
 pub const Arbiter = @import("Arbiter.zig").Arbiter(NumT);
