@@ -20,7 +20,7 @@ pub fn World(comptime T: type) type {
             pub var warmStarting = false;
             pub var positionCorrection = false;
         };
-        pub fn init(a: std.heap.Allocator, gravityVec: Vec2(T), iter: usize) Self {
+        pub fn init(a: std.mem.Allocator, gravityVec: Vec2(T), iter: usize) Self {
             return Self{ .bodies = std.ArrayList(*Body(T)).init(a), .joints = std.ArrayList(*Joint(T)).init(a), .arbiters = std.AutoArrayHashMap(ArbiterKey(T), Arbiter(T)).init(a), .gravity = gravityVec, .iterations = iter };
         }
         pub fn AddBody(self: Self, body: *Body(T)) void {

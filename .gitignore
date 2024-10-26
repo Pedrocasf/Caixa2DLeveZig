@@ -2,3 +2,4 @@ zig-cache
 zig-out
 lib*.o
 lib*.a
+.zig-cache
