@@ -1,6 +1,6 @@
 pub fn Vec2(comptime T: type) type {
     return struct {
-        var Self = @This();
+        const Self = @This();
         x: T,
         y: T,
         pub fn init(x: T, y: T) Self {
