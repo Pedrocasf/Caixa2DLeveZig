@@ -1,5 +1,5 @@
 const std = @import("std");
-const MathUtils = @import("MathUtils.zig");
+pub const MathUtils = @import("MathUtils.zig");
 //const FloatDouble = @import("FloatDouble.zig");
 //const Float = FloatDouble.Float;
 //const Double = FloatDouble.Double;
