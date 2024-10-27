@@ -4,7 +4,7 @@ pub fn Vec2(comptime T: type) type {
         x: T,
         y: T,
         pub fn init(x: T, y: T) Self {
-            return Self{ .x = x, .y = y };
+            return .{ .x = x, .y = y };
         }
         pub fn set(self: Self, x: T, y: T) void {
             self.x = x;
@@ -42,10 +42,16 @@ pub fn Mat22(comptime T: type) type {
         pub fn initAngle(angle: T) Self {
             const c: T = @cos(angle);
             const s: T = @sin(angle);
-            return Self{ .col1 = Vec2(T).init(c, s), .col2 = Vec2(T).init(-s, c) };
+            return .{
+                .col1 = Vec2(T).init(c, s),
+                .col2 = Vec2(T).init(-s, c),
+            };
         }
         pub fn initV(col1: Vec2(T), col2: Vec2(T)) Self {
-            return Self{ .col1 = col1, .col2 = col2 };
+            return .{
+                .col1 = col1,
+                .col2 = col2,
+            };
         }
         pub fn transpose(self: Self) Self {
             return Self.initV(Vec2(T).init(self.col1.x, self.col2.x), Vec2(T).init(self.col1.y, self.col2.y));

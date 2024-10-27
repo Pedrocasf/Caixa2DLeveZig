@@ -9,7 +9,7 @@ const Mat22 = Math.Mat22;
 const FixedBufferAllocator = std.heap.FixedBufferAllocator;
 pub fn World(comptime T: type) type {
     return struct {
-        var Self = @This();
+        const Self = @This();
         bodies: std.ArrayList(*Body(T)),
         joints: std.ArrayList(*Joint(T)),
         arbiters: std.AutoArrayHashMap(ArbiterKey(T), Arbiter(T)),
@@ -21,7 +21,7 @@ pub fn World(comptime T: type) type {
             pub var positionCorrection = false;
         };
         pub fn init(a: std.mem.Allocator, gravityVec: Vec2(T), iter: usize) Self {
-            return Self{ .bodies = std.ArrayList(*Body(T)).init(a), .joints = std.ArrayList(*Joint(T)).init(a), .arbiters = std.AutoArrayHashMap(ArbiterKey(T), Arbiter(T)).init(a), .gravity = gravityVec, .iterations = iter };
+            return .{ .bodies = std.ArrayList(*Body(T)).init(a), .joints = std.ArrayList(*Joint(T)).init(a), .arbiters = std.AutoArrayHashMap(ArbiterKey(T), Arbiter(T)).init(a), .gravity = gravityVec, .iterations = iter };
         }
         pub fn AddBody(self: Self, body: *Body(T)) void {
             self.bodies.append(body);

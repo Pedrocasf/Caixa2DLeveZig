@@ -18,7 +18,7 @@ pub fn Joint(comptime T: type) type {
         biasFactor: T,
         softness: T,
         pub fn init() Self {
-            return Self{
+            return .{
                 .body1 = Body(T).init(),
                 .body2 = Body(T).init(),
                 .p = Vec2(T).init(0, 0),

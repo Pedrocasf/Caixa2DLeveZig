@@ -14,7 +14,7 @@ const FeaturePair = union {
 };
 pub fn Contact(comptime T: type) type {
     return struct {
-        var Self = @This();
+        const Self = @This();
         position: Vec2(T),
         normal: Vec2(T),
         r1: Vec2(T),
@@ -28,7 +28,19 @@ pub fn Contact(comptime T: type) type {
         bias: T,
         feature: FeaturePair,
         pub fn init() Self {
-            return Self{ .position = Vec2(T).init(0, 0), .normal = Vec2(T).init(0, 0), .r1 = Vec2(T).init(0, 0), .r2 = Vec2(T).init(0, 0), .separation = 0, .Pn = 0, .Pt = 0, .Pnb = 0, .massNormal = 0, .massTangent = 0, .bias = 0 };
+            return .{
+                .position = Vec2(T).init(0, 0),
+                .normal = Vec2(T).init(0, 0),
+                .r1 = Vec2(T).init(0, 0),
+                .r2 = Vec2(T).init(0, 0),
+                .separation = 0,
+                .Pn = 0,
+                .Pt = 0,
+                .Pnb = 0,
+                .massNormal = 0,
+                .massTangent = 0,
+                .bias = 0,
+            };
         }
     };
 }
@@ -39,9 +51,9 @@ pub fn ArbiterKey(comptime T: type) type {
         body2: Body(T),
         pub fn init(b1: *Body(T), b2: *Body(T)) Self {
             if (b1 < b2) {
-                return Self{ .body1 = b1, .body2 = b2 };
+                return .{ .body1 = b1, .body2 = b2 };
             } else {
-                return Self{ .body1 = b2, .body2 = b1 };
+                return .{ .body1 = b2, .body2 = b1 };
             }
         }
     };
@@ -68,7 +80,13 @@ pub fn Arbiter(comptime T: type) type {
                 body1 = b2;
                 body2 = b1;
             }
-            const self = Self{ .body1 = body1, .body2 = body2, .contacts = [MAX_POINTS]Contact(T){ Contact(T).init(), Contact(T).init() }, .numContacts = 0, .friction = @sqrt(body1.friction * body2.friction) };
+            const self = .{
+                .body1 = body1,
+                .body2 = body2,
+                .contacts = [MAX_POINTS]Contact(T){ Contact(T).init(), Contact(T).init() },
+                .numContacts = 0,
+                .friction = @sqrt(body1.friction * body2.friction),
+            };
             self.numContacts = Collide(T, self.contacts, body1, body2);
             return self;
         }

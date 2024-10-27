@@ -8,11 +8,14 @@ pub const Axis = enum { FACE_A_X, FACE_A_Y, FACE_B_X, FACE_B_Y };
 pub const EdgeNumbers = enum { NO_EDGE, EDGE1, EDGE2, EDGE3, EDGE4 };
 pub fn ClipVertex(comptime T: type) type {
     return struct {
-        var Self = @This();
+        const Self = @This();
         v: Vec2(T),
         fp: FeaturePair,
         pub fn init() Self {
-            return Self{ .v = Vec2(T).init(0, 0), .fp = 0 };
+            return .{
+                .v = Vec2(T).init(0, 0),
+                .fp = 0,
+            };
         }
     };
 }
