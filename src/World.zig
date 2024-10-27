@@ -24,10 +24,10 @@ pub fn World(comptime T: type) type {
             return .{ .bodies = std.ArrayList(*Body(T)).init(a), .joints = std.ArrayList(*Joint(T)).init(a), .arbiters = std.AutoArrayHashMap(ArbiterKey(T), Arbiter(T)).init(a), .gravity = gravityVec, .iterations = iter };
         }
         pub fn AddBody(self: *Self, body: *Body(T)) void {
-            self.bodies.append(body);
+            self.bodies.appendAssumeCapacity(body);
         }
         pub fn AddJoint(self: *Self, joint: *Joint(T)) void {
-            self.joints.append(joint);
+            self.joints.appendAssumeCapacity(joint);
         }
         pub fn clear(self: *Self) void {
             self.bodies.clearAndFree();
