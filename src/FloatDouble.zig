@@ -14,6 +14,10 @@ pub fn NativeFloatDoubleWrapper(comptime T: type) type {
         pub fn addition(self: Self, o: Self) Self {
             return self.n + o;
         }
-        pub fn subtraction(self: Self, o: T)
+        pub fn subtraction(self: Self, o: T) Self {
+            return self - o;
+        }
     };
 }
+pub const Float = NativeFloatDoubleWrapper(f32);
+pub const Double = NativeFloatDoubleWrapper(f64);
