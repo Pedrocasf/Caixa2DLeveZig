@@ -5,7 +5,7 @@ const Body = @import("Body.zig").Body;
 const World = @import("World.zig").World;
 pub fn Joint(comptime T: type) type {
     return struct {
-        var Self = @This();
+        const Self = @This();
         M: Mat22(T) = Mat22(T).initV(Vec2(T).init(1, 0), Vec2(T).init(0, 1)),
         localAnchor1: Vec2(T) = Vec2(T).init(1, 0),
         localAnchor2: Vec2(T) = Vec2(T).init(0, 1),
