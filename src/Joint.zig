@@ -26,7 +26,7 @@ pub fn Joint(comptime T: type) type {
                 .softness = 0,
             };
         }
-        pub fn set(self: Self, b1: Body(T), b2: Body(T), anchor: Vec2(T)) void {
+        pub fn set(self: *Self, b1: Body(T), b2: Body(T), anchor: Vec2(T)) void {
             self.body1 = b1;
             self.body2 = b2;
             const Rot1 = Mat22(T).initAngle(b1.rotation);
@@ -39,7 +39,7 @@ pub fn Joint(comptime T: type) type {
             self.softness = 0;
             self.biasFactor = 0.2;
         }
-        pub fn preStep(self: Self, inv_dt: T) void {
+        pub fn preStep(self: *Self, inv_dt: T) void {
             const Rot1 = Mat22(T).initAngle(self.body1.rotation);
             const Rot2 = Mat22(T).initAngle(self.body1.rotation);
             self.r1 = Math.MultMV(T, Rot1, self.localAnchor1);
@@ -68,7 +68,7 @@ pub fn Joint(comptime T: type) type {
                 self.P.set(0, 0);
             }
         }
-        pub fn ApplyImpulse(self: Self) void {
+        pub fn ApplyImpulse(self: *Self) void {
             const dv = Math.SubV(Math.SubV(T, Math.AddV(T, self.body2.velocity, Math.CrossSV(T, self.body2.angularVelocity, self.r2)), self.body1.velocity), Math.CrossSV(T, self.body1.angularVelocity, self.r1));
             const impulse = Math.MultMV(T, self.M, Math.MultSV(T, self.P, Math.SubV(T, Math.SubV(T, self.bias, dv), self.softness)));
             self.body1.velocity.dec(Math.MultSV(T, self.invMass, impulse));

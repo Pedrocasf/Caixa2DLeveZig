@@ -33,10 +33,10 @@ pub fn Body(comptime T: type) type {
                 .invI = 0,
             };
         }
-        pub fn addForce(self: Self, f: Vec2(T)) void {
+        pub fn addForce(self: *Self, f: Vec2(T)) void {
             self.force.acc(f);
         }
-        pub fn Set(self: Self, w: Vec2(T), m: T) void {
+        pub fn Set(self: *Self, w: Vec2(T), m: T) void {
             self.position.set(0, 0);
             self.rotation = 0;
             self.velocity.set(0, 0);

@@ -90,7 +90,7 @@ pub fn Arbiter(comptime T: type) type {
             self.numContacts = Collide(T, self.contacts, body1, body2);
             return self;
         }
-        pub fn update(self: Self, newContacts: [*:0]const Contact(T), numNewContacts: isize) void {
+        pub fn update(self: *Self, newContacts: [*:0]const Contact(T), numNewContacts: isize) void {
             const mergedContacts: [2]Contact(T) = undefined;
             for (newContacts, mergedContacts) |cNew, merged| {
                 var k: isize = -1;
@@ -122,7 +122,7 @@ pub fn Arbiter(comptime T: type) type {
             }
             self.numContacts = numNewContacts;
         }
-        pub fn PreStep(self: Self, inv_dt: T) void {
+        pub fn PreStep(self: *Self, inv_dt: T) void {
             const k_allowedPenetration = 0.01;
             const k_biasFactor = if (World(T).static.positionCorrection) {
                 0.2;

@@ -6,27 +6,27 @@ pub fn Vec2(comptime T: type) type {
         pub fn init(x: T, y: T) Self {
             return .{ .x = x, .y = y };
         }
-        pub fn set(self: Self, x: T, y: T) void {
+        pub fn set(self: *Self, x: T, y: T) void {
             self.x = x;
             self.y = y;
         }
-        pub fn neg(self: Self) void {
+        pub fn neg(self: *Self) void {
             self.x = -Self.x;
             self.y = -Self.y;
         }
-        pub fn acc(self: Self, v: Vec2(T)) void {
+        pub fn acc(self: *Self, v: Vec2(T)) void {
             self.x += v.x;
             self.y += v.y;
         }
-        pub fn dec(self: Self, v: Vec2(T)) void {
+        pub fn dec(self: *Self, v: Vec2(T)) void {
             self.x -= v.x;
             self.y -= v.y;
         }
-        pub fn mul(self: Self, a: T) void {
+        pub fn mul(self: *Self, a: T) void {
             self.x *= a;
             self.y *= a;
         }
-        pub fn Lenght(self: Self) T {
+        pub fn Lenght(self: *Self) T {
             return @sqrt((self.x * self.x) + (self.y * self.y));
         }
     };
@@ -53,10 +53,10 @@ pub fn Mat22(comptime T: type) type {
                 .col2 = col2,
             };
         }
-        pub fn transpose(self: Self) Self {
+        pub fn transpose(self: *Self) Self {
             return Self.initV(Vec2(T).init(self.col1.x, self.col2.x), Vec2(T).init(self.col1.y, self.col2.y));
         }
-        pub fn invert(self: Self) Self {
+        pub fn invert(self: *Self) Self {
             const a: T = self.col1.x;
             const b: T = self.col2.x;
             const c: T = self.col1.y;
