@@ -36,7 +36,7 @@ fn assert(ok: bool) void {
 }
 pub fn Mat22(comptime T: type) type {
     return struct {
-        var Self = @This();
+        const Self = @This();
         col1: Vec2(T),
         col2: Vec2(T),
         pub fn initAngle(angle: T) Self {
