@@ -4,7 +4,7 @@ const maxFloat = std.math.floatMax;
 const Vec2 = Math.Vec2;
 pub fn Body(comptime T: type) type {
     return struct {
-        const Self = @This();
+        var Self = @This();
         position: Vec2(T),
         rotation: T,
         velocity: Vec2(T),

@@ -14,7 +14,7 @@ const FeaturePair = union {
 };
 pub fn Contact(comptime T: type) type {
     return struct {
-        const Self = @This();
+        var Self = @This();
         position: Vec2(T),
         normal: Vec2(T),
         r1: Vec2(T),

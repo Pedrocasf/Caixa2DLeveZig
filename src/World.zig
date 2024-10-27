@@ -9,7 +9,7 @@ const Mat22 = Math.Mat22;
 const FixedBufferAllocator = std.heap.FixedBufferAllocator;
 pub fn World(comptime T: type) type {
     return struct {
-        const Self = @This();
+        var Self = @This();
         bodies: std.ArrayList(*Body(T)),
         joints: std.ArrayList(*Joint(T)),
         arbiters: std.AutoArrayHashMap(ArbiterKey(T), Arbiter(T)),
