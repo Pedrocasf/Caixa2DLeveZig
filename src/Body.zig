@@ -18,7 +18,7 @@ pub fn Body(comptime T: type) type {
         I: T,
         invI: T,
         pub fn init() Self {
-            return Self{
+            return .{
                 .position = Vec2(T).init(0, 0),
                 .rotation = 0,
                 .velocity = Vec2(T).init(0, 0),
