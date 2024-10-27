@@ -23,18 +23,18 @@ pub fn World(comptime T: type) type {
         pub fn init(a: std.mem.Allocator, gravityVec: Vec2(T), iter: usize) Self {
             return .{ .bodies = std.ArrayList(*Body(T)).init(a), .joints = std.ArrayList(*Joint(T)).init(a), .arbiters = std.AutoArrayHashMap(ArbiterKey(T), Arbiter(T)).init(a), .gravity = gravityVec, .iterations = iter };
         }
-        pub fn AddBody(self: Self, body: *Body(T)) void {
+        pub fn AddBody(self: *Self, body: *Body(T)) void {
             self.bodies.append(body);
         }
-        pub fn AddJoint(self: Self, joint: *Joint(T)) void {
+        pub fn AddJoint(self: *Self, joint: *Joint(T)) void {
             self.joints.append(joint);
         }
-        pub fn clear(self: Self) void {
+        pub fn clear(self: *Self) void {
             self.bodies.clearAndFree();
             self.joints.clearAndFree();
             self.arbiters.clearAndFree();
         }
-        pub fn BoardPhase(self: Self) void {
+        pub fn BoardPhase(self: *Self) void {
             for (self.bodies) |bi| {
                 for (self.bodies) |bj| {
                     if (bi.invMass == 0 & (bj.invMass == 0)) {
@@ -50,7 +50,7 @@ pub fn World(comptime T: type) type {
                 }
             }
         }
-        pub fn Step(self: Self, dt: T) void {
+        pub fn Step(self: *Self, dt: T) void {
             const inv_dt: T = if (dt > 0) {
                 1 / dt;
             } else {
