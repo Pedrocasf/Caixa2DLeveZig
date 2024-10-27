@@ -51,11 +51,10 @@ pub fn World(comptime T: type) type {
             }
         }
         pub fn Step(self: *Self, dt: T) void {
-            const inv_dt: T = if (dt > 0) {
-                1 / dt;
-            } else {
-                0;
-            };
+            var inv_dt: T = 0;
+            if (dt > 0) {
+                inv_dt = 1 / dt;
+            }
             self.BoardPhase();
             for (self.bodies) |b| {
                 if (b.invMass == 0) {
