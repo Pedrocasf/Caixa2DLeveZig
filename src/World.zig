@@ -35,8 +35,8 @@ pub fn World(comptime T: type) type {
             self.arbiters.clearAndFree();
         }
         pub fn BoardPhase(self: *Self) void {
-            for (self.bodies) |bi| {
-                for (self.bodies) |bj| {
+            for (self.bodies.items) |bi| {
+                for (self.bodies.items) |bj| {
                     if (bi.invMass == 0 & (bj.invMass == 0)) {
                         continue;
                     }
@@ -56,7 +56,7 @@ pub fn World(comptime T: type) type {
                 inv_dt = 1 / dt;
             }
             self.BoardPhase();
-            for (self.bodies) |b| {
+            for (self.bodies.items) |b| {
                 if (b.invMass == 0) {
                     continue;
                 }
@@ -66,18 +66,18 @@ pub fn World(comptime T: type) type {
             for (self.arbiters.values()) |v| {
                 v.PreStep(inv_dt);
             }
-            for (self.joints) |j| {
+            for (self.joints.items) |j| {
                 j.PreStep(inv_dt);
             }
             for (0..self.iterations) |_| {
                 for (self.arbiters.values()) |v| {
                     v.ApplyImpulse();
                 }
-                for (self.joints) |j| {
+                for (self.joints.items) |j| {
                     j.ApplyImpulse();
                 }
             }
-            for (self.bodies) |b| {
+            for (self.bodies.items) |b| {
                 b.position.acc(Math.MultSV(T, dt, b.velocity));
                 b.rotation += dt * b.angularVelocity;
                 b.force.set(0, 0);
