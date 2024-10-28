@@ -37,7 +37,7 @@ pub fn World(comptime T: type) type {
         pub fn BoardPhase(self: *Self) void {
             for (self.bodies.items) |bi| {
                 for (self.bodies.items) |bj| {
-                    if (bi.invMass == 0 & (bj.invMass == 0)) {
+                    if ((bi.invMass == 0) & (bj.invMass == 0)) {
                         continue;
                     }
                     const newArb = Arbiter(T).init(bi, bj);
