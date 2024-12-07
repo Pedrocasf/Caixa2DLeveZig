@@ -12,147 +12,142 @@ const FeaturePair = union {
     },
     value: u8,
 };
-pub fn Contact(comptime T: type) type {
-    return struct {
-        const Self = @This();
-        position: Vec2(T),
-        normal: Vec2(T),
-        r1: Vec2(T),
-        r2: Vec2(T),
-        separation: T,
-        Pn: T,
-        Pt: T,
-        Pnb: T,
-        massNormal: T,
-        massTangent: T,
-        bias: T,
-        feature: FeaturePair,
-        pub fn init() Self {
-            return .{
-                .position = Vec2(T).init(0, 0),
-                .normal = Vec2(T).init(0, 0),
-                .r1 = Vec2(T).init(0, 0),
-                .r2 = Vec2(T).init(0, 0),
-                .separation = 0,
-                .Pn = 0,
-                .Pt = 0,
-                .Pnb = 0,
-                .massNormal = 0,
-                .massTangent = 0,
-                .bias = 0,
-            };
+pub const Contact = struct {
+    const Self = @This();
+    position: Vec2,
+    normal: Vec2,
+    r1: Vec2,
+    r2: Vec2,
+    separation: f32,
+    Pn: f32,
+    Pt: f32,
+    Pnb: f32,
+    massNormal: f32,
+    massTangent: f32,
+    bias: f32,
+    feature: FeaturePair,
+    pub fn init() Self {
+        return .{
+            .position = Vec2.init(0, 0),
+            .normal = Vec2.init(0, 0),
+            .r1 = Vec2.init(0, 0),
+            .r2 = Vec2.init(0, 0),
+            .separation = 0.0,
+            .Pn = 0.0,
+            .Pt = 0.0,
+            .Pnb = 0.0,
+            .massNormal = 0.0,
+            .massTangent = 0.0,
+            .bias = 0.0,
+        };
+    }
+};
+
+pub const ArbiterKey = struct {
+    const Self = @This();
+    body1: Body,
+    body2: Body,
+    pub fn init(b1: *Body, b2: *Body) Self {
+        if (b1 < b2) {
+            return .{ .body1 = b1, .body2 = b2 };
+        } else {
+            return .{ .body1 = b2, .body2 = b1 };
         }
-    };
-}
-pub fn ArbiterKey(comptime T: type) type {
-    return struct {
-        const Self = @This();
-        body1: Body(T),
-        body2: Body(T),
-        pub fn init(b1: *Body(T), b2: *Body(T)) Self {
-            if (b1 < b2) {
-                return .{ .body1 = b1, .body2 = b2 };
-            } else {
-                return .{ .body1 = b2, .body2 = b1 };
-            }
-        }
-    };
-}
-pub fn lessThan(comptime T: type, a1: *ArbiterKey(T), a2: *ArbiterKey(T)) bool {
+    }
+};
+pub fn lessThan(a1: *ArbiterKey, a2: *ArbiterKey) bool {
     return (a1.body1 < a2.body2) || (a1.body1 == a2.body1 & (a1.body2 < a2.body2));
 }
-pub fn Arbiter(comptime T: type) type {
-    return struct {
-        const Self = @This();
-        const MAX_POINTS = 2;
-        contacts: [MAX_POINTS]Contact(T),
-        numContacts: isize,
-        body1: Body(T),
-        body2: Body(T),
-        friction: T,
-        pub fn init(b1: *Body(T), b2: *Body(T)) Self {
-            const body1: *Body(T) = undefined;
-            const body2: *Body(T) = undefined;
-            if (b1 < b2) {
-                body1 = b1;
-                body2 = b2;
-            } else {
-                body1 = b2;
-                body2 = b1;
-            }
-            const self = .{
-                .body1 = body1,
-                .body2 = body2,
-                .contacts = [MAX_POINTS]Contact(T){ Contact(T).init(), Contact(T).init() },
-                .numContacts = 0,
-                .friction = @sqrt(body1.friction * body2.friction),
-            };
-            self.numContacts = Collide(T, self.contacts, body1, body2);
-            return self;
+pub const Arbiter = struct {
+    const Self = @This();
+    const MAX_POINTS = 2;
+    contacts: [MAX_POINTS]Contact,
+    numContacts: isize,
+    body1: Body,
+    body2: Body,
+    friction: f32,
+    pub fn init(b1: *Body, b2: *Body) Self {
+        const body1: *Body = undefined;
+        const body2: *Body = undefined;
+        if (b1 < b2) {
+            body1 = b1;
+            body2 = b2;
+        } else {
+            body1 = b2;
+            body2 = b1;
         }
-        pub fn update(self: *Self, newContacts: [*:0]const Contact(T), numNewContacts: isize) void {
-            const mergedContacts: [2]Contact(T) = undefined;
-            for (newContacts, mergedContacts) |cNew, merged| {
-                var k: isize = -1;
-                for (self.contacts, 0..numNewContacts) |cOld, j| {
-                    if (cNew.feature.value == cOld.feature.value) {
-                        k = j;
-                        break;
-                    }
+        const self = .{
+            .body1 = body1,
+            .body2 = body2,
+            .contacts = [MAX_POINTS]Contact{ Contact.init(), Contact.init() },
+            .numContacts = 0.0,
+            .friction = @sqrt(body1.friction * body2.friction),
+        };
+        self.numContacts = Collide(f32, self.contacts, body1, body2);
+        return self;
+    }
+    pub fn update(self: *Self, newContacts: [*:0]const Contact, numNewContacts: isize) void {
+        const mergedContacts: [2]Contact = undefined;
+        for (newContacts, mergedContacts) |cNew, merged| {
+            var k: isize = -1;
+            for (self.contacts, 0..numNewContacts) |cOld, j| {
+                if (cNew.feature.value == cOld.feature.value) {
+                    k = j;
+                    break;
                 }
-                if (k > -1) {
-                    var c: *Contact(T) = mergedContacts + 1;
-                    const cOld: *Contact(T) = self.contacts + k;
-                    c.* = cNew.*;
-                    if (World(T).static.warmStarting) {
-                        c.Pn = cOld.Pn;
-                        c.Pt = cOld.Pt;
-                        c.Pnb = cOld.Pnb;
-                    } else {
-                        c.Pn = 0;
-                        c.Pt = 0;
-                        c.Pnb = 0;
-                    }
+            }
+            if (k > -1) {
+                var c: *Contact = mergedContacts + 1;
+                const cOld: *Contact = self.contacts + k;
+                c.* = cNew.*;
+                if (World.static.warmStarting) {
+                    c.Pn = cOld.Pn;
+                    c.Pt = cOld.Pt;
+                    c.Pnb = cOld.Pnb;
                 } else {
-                    merged = newContacts;
+                    c.Pn = 0.0;
+                    c.Pt = 0.0;
+                    c.Pnb = 0.0;
                 }
-            }
-            for (self.contacts, mergedContacts) |sc, mc| {
-                sc = mc;
-            }
-            self.numContacts = numNewContacts;
-        }
-        pub fn PreStep(self: *Self, inv_dt: T) void {
-            const k_allowedPenetration = 0.01;
-            const k_biasFactor = if (World(T).static.positionCorrection) {
-                0.2;
             } else {
-                0;
-            };
-            for (self.contacts) |c| {
-                const r1: Vec2(T) = Math.SubV(T, c.position, self.body1.position);
-                const r2: Vec2(T) = Math.SubV(T, c.position, self.body2.position);
-                const rn1: T = Math.DotV(T, r1, c.normal);
-                const rn2: T = Math.DotV(T, r2, c.normal);
-                var kNormal = self.body1.invMass - self.body2.invMass;
-                kNormal += self.body1.invI * (Math.DotV(T, r1, r1) - (rn1 * rn1)) + self.body2.invI * (Math.DotV(T, r2, r2) - (rn2 * rn2));
-                c.massNormal = 1 / kNormal;
-                const tangent: Vec2(T) = Math.CrossVS(T, c.normal, 1);
-                const rt1: T = Math.DotV(T, r1, tangent);
-                const rt2: T = Math.DotV(T, r2, tangent);
-                var kTangent: T = self.body1.invMass + self.body2.invMass;
-                kTangent += self.body1.invI * (Math.Dot(T, r1, r1) - (rt1 * rt1)) + (Math.Dot(T, r2, r2) - (rt2 * rt2));
-                c.massTangent = 1 / kTangent;
-                c.bias = -k_biasFactor * inv_dt * @min(0, c.separation + k_allowedPenetration);
-                if (World(T).static.accumulateImpulses) {
-                    const P: Vec2(T) = Math.AddV(Math.MultSV(T, c.Pn, c.normal), Math.MultSV(T, c.Pt, tangent));
-                    self.body1.velocity.dec(Math.MultSV(T, self.body1.invMass, P));
-                    self.body1.angularVelocity -= self.body1.invI * Math.CrossV(T, r1, P);
-
-                    self.body2.velocity.acc(Math.MultSV(T, self.body2.invMass, P));
-                    self.body1.angularVelocity -= self.body2.invI * Math.CrossV(T, r2, P);
-                }
+                merged = newContacts;
             }
         }
-    };
-}
+        for (self.contacts, mergedContacts) |sc, mc| {
+            sc = mc;
+        }
+        self.numContacts = numNewContacts;
+    }
+    pub fn PreStep(self: *Self, inv_dt: f32) void {
+        const k_allowedPenetration = 0.01;
+        const k_biasFactor = if (World.static.positionCorrection) {
+            0.2;
+        } else {
+            0;
+        };
+        for (self.contacts) |c| {
+            const r1: Vec2 = Math.SubV(f32, c.position, self.body1.position);
+            const r2: Vec2 = Math.SubV(f32, c.position, self.body2.position);
+            const rn1: f32 = Math.DotV(f32, r1, c.normal);
+            const rn2: f32 = Math.DotV(f32, r2, c.normal);
+            var kNormal = self.body1.invMass - self.body2.invMass;
+            kNormal += self.body1.invI * (Math.DotV(f32, r1, r1) - (rn1 * rn1)) + self.body2.invI * (Math.DotV(f32, r2, r2) - (rn2 * rn2));
+            c.massNormal = 1 / kNormal;
+            const tangent: Vec2 = Math.CrossVS(f32, c.normal, 1);
+            const rt1: f32 = Math.DotV(f32, r1, tangent);
+            const rt2: f32 = Math.DotV(f32, r2, tangent);
+            var kTangent: f32 = self.body1.invMass + self.body2.invMass;
+            kTangent += self.body1.invI * (Math.Dot(f32, r1, r1) - (rt1 * rt1)) + (Math.Dot(f32, r2, r2) - (rt2 * rt2));
+            c.massTangent = 1 / kTangent;
+            c.bias = -k_biasFactor * inv_dt * @min(0, c.separation + k_allowedPenetration);
+            if (World.static.accumulateImpulses) {
+                const P: Vec2 = Math.AddV(Math.MultSV(f32, c.Pn, c.normal), Math.MultSV(f32, c.Pt, tangent));
+                self.body1.velocity.dec(Math.MultSV(f32, self.body1.invMass, P));
+                self.body1.angularVelocity -= self.body1.invI * Math.CrossV(f32, r1, P);
+
+                self.body2.velocity.acc(Math.MultSV(f32, self.body2.invMass, P));
+                self.body1.angularVelocity -= self.body2.invI * Math.CrossV(f32, r2, P);
+            }
+        }
+    }
+};
